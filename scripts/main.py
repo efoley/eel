@@ -20,7 +20,7 @@ def main():
 
     config = load_config(model_dir / "config.json")
 
-    weights, owned_tensors = load_weights(config, model_dir / "model.safetensors")
+    weights = load_weights(config, model_dir / "model.safetensors")
 
     model = load_model(config, weights)
 

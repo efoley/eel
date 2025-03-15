@@ -1,5 +1,6 @@
 import ctypes
 
+
 class Config(ctypes.Structure):
     _fields_ = [
         ("size", ctypes.c_int),
@@ -31,8 +32,9 @@ class InferState(ctypes.Structure):
         ("v", ctypes.POINTER(ctypes.c_float)),
         ("score", ctypes.POINTER(ctypes.c_float)),
         ("mha_out", ctypes.POINTER(ctypes.c_float)),
-        ("logits", ctypes.POINTER(ctypes.c_float))
+        ("logits", ctypes.POINTER(ctypes.c_float)),
     ]
+
 
 class LayerWeights(ctypes.Structure):
     _fields_ = [
@@ -47,15 +49,22 @@ class LayerWeights(ctypes.Structure):
         ("v_bias", ctypes.POINTER(ctypes.c_float)),
         ("ffn_in_proj", ctypes.POINTER(ctypes.c_float)),
         ("ffn_gate_proj", ctypes.POINTER(ctypes.c_float)),
-        ("ffn_out_proj", ctypes.POINTER(ctypes.c_float))
+        ("ffn_out_proj", ctypes.POINTER(ctypes.c_float)),
     ]
+
 
 class Weights(ctypes.Structure):
     _fields_ = [
         ("token_embedding", ctypes.POINTER(ctypes.c_float)),
         ("rms_weight", ctypes.POINTER(ctypes.c_float)),
-        ("layer", ctypes.POINTER(ctypes.POINTER(LayerWeights)))
+        ("layer", ctypes.POINTER(ctypes.POINTER(LayerWeights))),
+        # NOTE: new fields from C go above this line
+        (
+            "_owned_py_obj",
+            ctypes.py_object,
+        ),  # not in C struct; holds reference to python object owning buffers
     ]
+
 
 class Model(ctypes.Structure):
     _fields_ = [

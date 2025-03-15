@@ -70,7 +70,7 @@ def _permute_rope(w, num_heads, rope_size):
     return torch.flatten(w, 0, 1)
 
 
-def load_weights(config: Config, weights_path: str, verbose: bool = False) -> tuple[Weights, Any]:
+def load_weights(config: Config, weights_path: str, verbose: bool = False) -> Weights:
     """
     Load weights from the HF safetensor file.
     """
@@ -228,7 +228,9 @@ def load_weights(config: Config, weights_path: str, verbose: bool = False) -> tu
             ),
         )
 
-    return weights, owned_tensors
+    weights._owned_py_obj = owned_tensors
+
+    return weights
 
 
 def load_model(config: Config, weights: Weights) -> Model:
