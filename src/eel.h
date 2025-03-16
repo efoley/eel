@@ -14,6 +14,7 @@ struct Config {
     float norm_eps; // regularization for normalization
     float rope_theta;
     int rope_size; // max rotary dimension for RoPE (<= head_size)
+    int tie_embeddings; // true if in & out token embeddings are tied
 };
 
 /**
@@ -71,7 +72,9 @@ struct LayerWeights {
 };
 
 struct Weights {
-    float *token_embedding; // (vocab_size, size)
+    float *embedding_in_table; // (vocab_size, size)
+    float *embedding_out_proj; // (vocab_size, size)
+
     float *rms_weight; // (size,)
 
     struct LayerWeights **layer;

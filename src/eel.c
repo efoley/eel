@@ -129,13 +129,15 @@ float *forward(const struct Model *model, struct InferState *state, int token, i
     #endif
 
     int size = config->size;
-    memcpy(state->x1, weights->token_embedding + token * size, sizeof(float) * size);
+    memcpy(state->x1, weights->embedding_in_table + token * size, sizeof(float) * size);
 
     for (int layer=0; layer<config->num_layers; layer++) {
         forward_one_layer(config, weights->layer[layer], state, layer, pos);
     }
 
-    rms_norm(state->x1, weights->rms_weight, state->logits, size, config->norm_eps);
+    rms_norm(state->x1, weights->rms_weight, state->x2, size, config->norm_eps);
+
+    mv(weights->embedding_out_proj, state->x2, state->logits, config->vocab_size, size);
 
     return state->logits;
 }

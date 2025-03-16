@@ -55,7 +55,8 @@ class LayerWeights(ctypes.Structure):
 
 class Weights(ctypes.Structure):
     _fields_ = [
-        ("token_embedding", ctypes.POINTER(ctypes.c_float)),
+        ("embedding_in_table", ctypes.POINTER(ctypes.c_float)),
+        ("embedding_out_proj", ctypes.POINTER(ctypes.c_float)),
         ("rms_weight", ctypes.POINTER(ctypes.c_float)),
         ("layer", ctypes.POINTER(ctypes.POINTER(LayerWeights))),
         # NOTE: new fields from C go above this line

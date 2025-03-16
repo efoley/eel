@@ -39,7 +39,8 @@ void check_state_for_nan(const char* context, const struct Config *config, struc
 }
 
 void check_weights_for_nan(const char *context, const struct Config *config, const struct Weights *weights) {
-    check_array(context, "token_embedding", weights->token_embedding, (size_t)config->vocab_size * config->size);
+    check_array(context, "embedding_in_table", weights->embedding_in_table, (size_t)config->vocab_size * config->size);
+    check_array(context, "embedding_out_proj", weights->embedding_out_proj, (size_t)config->vocab_size * config->size);
     check_array(context, "rms_weight", weights->rms_weight, config->size);
   
     for (int layer_idx = 0; layer_idx < config->num_layers; ++layer_idx) {

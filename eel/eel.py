@@ -48,6 +48,7 @@ def load_config(config_path: str) -> Config:
         norm_eps=config["rms_norm_eps"],
         rope_theta=config["rope_theta"],
         rope_size=rope_size,
+        tie_embeddings=int(config["tie_word_embeddings"]),
     )
 
 
@@ -118,11 +119,21 @@ def load_weights(config: Config, weights_path: str, verbose: bool = False) -> We
         return ctypes.cast(tensor.data_ptr(), ctypes.POINTER(ctypes.c_float))
 
     dtype = torch.float32
-    weights.token_embedding = conv(
+    weights.embedding_in_table = conv(
         st_weights.get("model.embed_tokens.weight", None),
         dtype,
         (config.vocab_size, config.size),
     )
+
+    if config.tie_embeddings:
+        weights.embedding_out_proj = weights.embedding_in_table
+    else:
+        weights.embedding_out_proj = conv(
+            st_weights["model.output.weight"],
+            dtype,
+            (config.vocab_size, config.size),
+        )
+
     weights.rms_weight = conv(
         st_weights.get("model.norm.weight", None), dtype, (config.size,)
     )
