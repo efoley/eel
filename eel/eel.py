@@ -71,6 +71,22 @@ def _permute_rope(w, num_heads, rope_size):
     return torch.flatten(w, 0, 1)
 
 
+def _permute_rope_bias(w, num_heads, rope_size):
+    head_size = w.shape[0] // num_heads
+    assert rope_size <= head_size
+    w = torch.unflatten(w, 0, (-1, head_size))
+    # wr is the rotary part, wk is the part kept unrotated
+    wr = w[:rope_size]
+    wk = w[rope_size:]
+    # switch wr from outputting two rotary_dim/2 chunks to outputting values interleaved
+    wr = torch.unflatten(wr, 1, (2, -1))
+    wr = wr.transpose(1, 2)
+    wr = wr.flatten(1, 2)
+    # assemble the heads back
+    w = torch.cat([wr, wk], dim=0)
+    return torch.flatten(w, 0, 1)
+
+
 def load_weights(config: Config, weights_path: str, verbose: bool = False) -> Weights:
     """
     Load weights from the HF safetensor file.
@@ -199,12 +215,20 @@ def load_weights(config: Config, weights_path: str, verbose: bool = False) -> We
         )
 
         layer.q_bias = conv(
-            st_weights[f"model.layers.{layer_idx}.self_attn.q_proj.bias"],
+            _permute_rope_bias(
+                st_weights[f"model.layers.{layer_idx}.self_attn.q_proj.bias"],
+                config.num_q_heads,
+                config.rope_size,
+            ),
             dtype,
             (config.num_q_heads * config.head_size,),
         )
         layer.k_bias = conv(
-            st_weights[f"model.layers.{layer_idx}.self_attn.k_proj.bias"],
+            _permute_rope_bias(
+                st_weights[f"model.layers.{layer_idx}.self_attn.k_proj.bias"],
+                config.num_kv_heads,
+                config.rope_size,
+            ),
             dtype,
             (config.num_kv_heads * config.head_size,),
         )
