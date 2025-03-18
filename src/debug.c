@@ -63,3 +63,25 @@ void check_weights_for_nan(const char *context, const struct Config *config, con
       check_array(layer_context, "ffn_out_proj", layer_weights->ffn_out_proj, (size_t)config->size * config->ffn_hidden_size);
     }
 }
+
+void print_head_tail(const float *arr, int n, int h)
+{
+    for (int i = 0; i < h; i++)
+    {
+        if (i > 0)
+        {
+            printf(", ");
+        }
+        printf("%f ", arr[i]);
+    }
+    printf("...");
+    for (int i = n - h; i < n; i++)
+    {
+        if (i > n - h)
+        {
+            printf(", ");
+        }
+        printf("%f ", arr[i]);
+    }
+    printf("\n");
+}
