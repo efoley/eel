@@ -10,6 +10,8 @@
 
 #define EEL_DEBUG 0
 
+#define EEL_DEBUG_STATE 0 // very slow!
+
 /**
  * Forward one layer.
  *
@@ -17,8 +19,7 @@
  */
 void forward_one_layer(const struct Config *config, const struct LayerWeights *weights, struct InferState *state, int layer, int pos)
 {
-
-    #if EEL_DEBUG
+    #if EEL_DEBUG_STATE
         #define CHECK_STATE_FOR_NAN() \
         do { \
             char context[100]; \
@@ -28,7 +29,6 @@ void forward_one_layer(const struct Config *config, const struct LayerWeights *w
     #else
         #define CHECK_STATE_FOR_NAN() do {} while (0)
     #endif
-
 
     CHECK_STATE_FOR_NAN();
 
@@ -57,6 +57,7 @@ void forward_one_layer(const struct Config *config, const struct LayerWeights *w
     // update kv cache for current timestep
     // TODO cache needs to be circular
     // TODO need attention sink
+    // TODO need to rotate sink tokens
     int kv_len = pos >= config->max_seq_len ? config->max_seq_len : pos + 1;
     int layer_kv_cache_offset = layer * config->max_seq_len * all_heads_kv_size;
 
@@ -73,7 +74,7 @@ void forward_one_layer(const struct Config *config, const struct LayerWeights *w
 
     // compute multi-query attention
     assert(config->num_q_heads % config->num_kv_heads == 0);
-    int q_h_per_kv_h = config->num_q_heads / config->num_kv_heads;
+    int q_h_per_kv_h = config->num_q_heads / config->num_kv_heads; // >1 for MQA
     for (int q_h = 0; q_h < config->num_q_heads; q_h++)
     {
         // offset k, v for corresponding head at pos 0
@@ -125,14 +126,30 @@ float *forward(const struct Model *model, struct InferState *state, int token, i
     const struct Weights *weights = model->weights;
 
     #if EEL_DEBUG
+    printf("forward(..., token=%d, pos=%d)\n", token, pos);
+    #endif
+
+    #if EEL_DEBUG
     check_weights_for_nan("", config, weights);
     #endif
 
     int size = config->size;
     memcpy(state->x1, weights->embedding_in_table + token * size, sizeof(float) * size);
 
+    #if EEL_DEBUG
+    printf("Embedding:");
+    print_head_tail(state->x1, size, 3);
+    #endif
+
     for (int layer=0; layer<config->num_layers; layer++) {
         forward_one_layer(config, weights->layer[layer], state, layer, pos);
+
+        #if EEL_DEBUG
+        if (layer < 1) {
+            printf("Layer %d:", layer);
+            print_head_tail(state->x1, size, 3);
+        }
+        #endif
     }
 
     rms_norm(state->x1, weights->rms_weight, state->x2, size, config->norm_eps);
