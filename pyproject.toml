@@ -9,10 +9,14 @@ dependencies = [
     "safetensors>=0.5.3",
     "tokenizers>=0.21.0",
     "torch>=2.6.0",
+    # TODO remove transformers and just use tokenizers directly
+    "transformers>=4.49.0",
 ]
 
 [dependency-groups]
 dev = [
+    "accelerate>=1.5.2",
+    "ipykernel>=6.29.5",
     "ruff>=0.9.10",
 ]
 
