@@ -1,0 +1,25 @@
+name: C/C++ CI
+
+on:
+  # run on all branches
+  push:
+    branches: [ ]
+  pull_request:
+    branches: [ ]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: make
+      run: |
+        make
+
+  macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: make
+      run: |
+        make
