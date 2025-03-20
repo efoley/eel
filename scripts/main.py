@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 from pathlib import Path
+import time
 
 import numpy as np
 from transformers import AutoTokenizer
@@ -27,6 +28,9 @@ def test(tokenizer, model, state) -> str:
 
     token_ids = tokenizer(text)["input_ids"]
 
+    # start timing here
+    start_time = time.time()
+
     # feed in the prompt
     pos = 0
     logits = None
@@ -37,18 +41,23 @@ def test(tokenizer, model, state) -> str:
 
     output_tokens = []
 
+    prompt_time = time.time() - start_time
+
     # sample starting with last token of prompt
     last_output_token_id = np.argmax(logits)
     output_tokens.append(last_output_token_id)
     #
-    for _ in range(20):
+    for _ in range(64):
         logits = forward(model, state, last_output_token_id, pos)
         pos += 1
         assert np.all(np.isfinite(logits))
-        print(logits)
         last_output_token_id = np.argmax(logits)
         output_tokens.append(last_output_token_id)
 
+    end_time = time.time() - start_time 
+
+    print(f"Prompt time: {prompt_time:.4f}s")
+    print(f"Total time: {end_time:.4f}s")
     print(tokenizer.decode(output_tokens, skip_special_tokens=True))
 
 
