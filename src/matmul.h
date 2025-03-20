@@ -1,15 +1,6 @@
 #pragma once
 
 /**
- * Perform matrix multiplication of two matrices A and B.
- *
- * @param A Pointer to the first matrix, with dimensions M x K.
- * @param B Pointer to the second matrix, with dimensions K x N.
- * @param C Pointer to the result matrix, with dimensions M x N.
- */
-void mm(const float *restrict A, const float *restrict B, float *restrict C, int M, int N, int K);
-
-/**
  * Compute
  * y = Ax + b
  *
