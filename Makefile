@@ -13,7 +13,9 @@ OBJS=$(SOURCES:%=$(BUILD)/%.o)
 
 
 ifeq ($(UNAME),Darwin)
-	CFLAGS+=-I/Library/Developer/CommandLineTools/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers
+	FRAMEWORKS_DIR=/Library/Developer/CommandLineTools/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/
+	ACCELERATE_HEADERS=$(FRAMEWORKS_DIR)/Accelerate.framework/Versions/A/Headers
+	CFLAGS+=-I$(ACCELERATE_HEADERS) -DACCELERATE_NEW_LAPACK
 	LDFLAGS+=-dynamiclib -framework Accelerate
 else
 	LDFLAGS+=-shared
