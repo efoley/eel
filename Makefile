@@ -2,7 +2,9 @@ MAKEFLAGS+=-r -j
 
 UNAME=$(shell uname)
 
-CFLAGS=-g -Wall -Wpointer-arith -Werror # -O3 #-ffast-math
+CFLAGS=-g -Wall -Wpointer-arith -Werror -O3
+CFLAGS+=-ffast-math
+
 LDFLAGS=-lm
 
 BUILD=build
