@@ -274,34 +274,13 @@ def load_model(config: Config, weights: Weights) -> Model:
 
 
 def init_state(config: Config) -> InferState:
-    state = InferState()
-
-    state.x1 = (ctypes.c_float * config.size)()
-    state.x2 = (ctypes.c_float * config.size)()
-    state.x3 = (ctypes.c_float * config.size)()
-
-    state.h1 = (ctypes.c_float * config.ffn_hidden_size)()
-    state.h2 = (ctypes.c_float * config.ffn_hidden_size)()
-    state.h3 = (ctypes.c_float * config.ffn_hidden_size)()
-
-    kv_cache_size = (
-        config.num_layers * config.max_seq_len * config.num_kv_heads * config.head_size
+    lib.make_state.argtypes = (
+        ctypes.POINTER(Config),
     )
-    state.k_cache = (ctypes.c_float * kv_cache_size)()
-    state.v_cache = (ctypes.c_float * kv_cache_size)()
+    lib.make_state.restype = ctypes.POINTER(InferState)
 
-    q_size = config.num_q_heads * config.head_size
-    kv_size = config.num_kv_heads * config.head_size
-    state.q = (ctypes.c_float * q_size)()
-    state.k = (ctypes.c_float * kv_size)()
-    state.v = (ctypes.c_float * kv_size)()
-
-    state.score = (ctypes.c_float * config.max_seq_len)()
-    state.mha_out = (ctypes.c_float * q_size)()
-
-    state.logits = (ctypes.c_float * config.vocab_size)()
-
-    return state
+    state_ptr = lib.make_state(ctypes.pointer(config))
+    return _deref(state_ptr)
 
 
 def forward(model: Model, state: InferState, token: int, pos: int) -> np.array:
