@@ -4,7 +4,11 @@
 #include <Accelerate/Accelerate.h>
 #endif
 
-#ifdef __APPLE__
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
+#if defined(__APPLE__)
 void mva(const float *restrict A, const float *restrict x, const float *restrict b, float *restrict y, int M, int N)
 {
     memcpy(y, b, sizeof(float) * M); // Copy b to y
@@ -17,8 +21,10 @@ void mv(const float *restrict A, const float *restrict x, float *restrict y, int
 }
 
 #else
+
 void mva(const float *restrict A, const float *restrict x, const float *restrict b, float *restrict y, int M, int N)
 {
+#pragma omp parallel for
     for (int i = 0; i < M; ++i)
     {
         y[i] = 0.0;
@@ -32,6 +38,7 @@ void mva(const float *restrict A, const float *restrict x, const float *restrict
 
 void mv(const float *restrict A, const float *restrict x, float *restrict y, int M, int N)
 {
+#pragma omp parallel for
     for (int i = 0; i < M; ++i)
     {
         y[i] = 0.0;

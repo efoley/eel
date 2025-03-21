@@ -20,8 +20,10 @@ ifeq ($(UNAME),Darwin)
 	CFLAGS+=-I$(ACCELERATE_HEADERS) -DACCELERATE_NEW_LAPACK
 	LDFLAGS+=-dynamiclib -framework Accelerate
 else
-	LDFLAGS+=-shared
+	CFLAGS+=-fopenmp
+	LDFLAGS+=-shared -fopenmp
 endif
+
 
 ifeq ($(UNAME),Darwin)
 	LIBRARY_NAME=libeel.dylib
