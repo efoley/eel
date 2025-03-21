@@ -12,18 +12,15 @@ SOURCES=$(wildcard src/*.c)
 
 OBJS=$(SOURCES:%=$(BUILD)/%.o)
 
-
-
 ifeq ($(UNAME),Darwin)
 	FRAMEWORKS_DIR=/Library/Developer/CommandLineTools/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/
 	ACCELERATE_HEADERS=$(FRAMEWORKS_DIR)/Accelerate.framework/Versions/A/Headers
 	CFLAGS+=-I$(ACCELERATE_HEADERS) -DACCELERATE_NEW_LAPACK
 	LDFLAGS+=-dynamiclib -framework Accelerate
 else
-	CFLAGS+=-fopenmp
-	LDFLAGS+=-shared -fopenmp
+	CFLAGS+=-fopenmp -mavx2
+	LDFLAGS+=-shared -fopenmp -mavx2
 endif
-
 
 ifeq ($(UNAME),Darwin)
 	LIBRARY_NAME=libeel.dylib

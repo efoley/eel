@@ -12,6 +12,37 @@
 
 #define EEL_DEBUG_STATE 0 // very slow!
 
+struct InferState *make_state(struct Config *config) {
+    struct InferState *state = malloc(sizeof(struct InferState));
+
+    state->x1 = aligned_alloc(32, config->size * sizeof(float));
+    state->x2 = aligned_alloc(32, config->size * sizeof(float));
+    state->x3 = aligned_alloc(32, config->size * sizeof(float));
+
+    state->h1 = aligned_alloc(32, config->ffn_hidden_size * sizeof(float));
+    state->h2 = aligned_alloc(32, config->ffn_hidden_size * sizeof(float));
+    state->h3 = aligned_alloc(32, config->ffn_hidden_size * sizeof(float));
+
+    size_t kv_cache_size = (
+        config->num_layers * config->max_seq_len * config->num_kv_heads * config->head_size
+    );
+    state->k_cache = aligned_alloc(32, kv_cache_size * sizeof(float));
+    state->v_cache = aligned_alloc(32, kv_cache_size * sizeof(float));
+
+    size_t q_size = config->num_q_heads * config->head_size;
+    size_t kv_size = config->num_kv_heads * config->head_size;
+    state->q = aligned_alloc(32, q_size * sizeof(float));
+    state->k = aligned_alloc(32, kv_size * sizeof(float));
+    state->v = aligned_alloc(32, kv_size * sizeof(float));
+
+    state->score = aligned_alloc(32, config->max_seq_len * sizeof(float));
+    state->mha_out = aligned_alloc(32, q_size * sizeof(float));
+
+    state->logits = aligned_alloc(32, config->vocab_size * sizeof(float));
+
+    return state;
+}
+
 /**
  * Forward one layer.
  *

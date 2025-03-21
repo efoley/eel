@@ -88,6 +88,8 @@ struct Model {
     struct Weights *weights;
 };
 
+struct InferState *init_state(struct Config *config);
+
 /**
  * Forward pass of the model by one token.
  * 
