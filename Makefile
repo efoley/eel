@@ -18,8 +18,8 @@ ifeq ($(UNAME),Darwin)
 	CFLAGS+=-I$(ACCELERATE_HEADERS) -DACCELERATE_NEW_LAPACK
 	LDFLAGS+=-dynamiclib -framework Accelerate
 else
-	CFLAGS+=-fopenmp -mavx2
-	LDFLAGS+=-shared -fopenmp -mavx2
+	CFLAGS+=-fopenmp -mavx2 -mfma
+	LDFLAGS+=-shared -fopenmp
 endif
 
 ifeq ($(UNAME),Darwin)
