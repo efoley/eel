@@ -1,5 +1,7 @@
 import ctypes
 import json
+import platform
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -9,8 +11,12 @@ import torch
 from ._cdefs import Config, InferState, LayerWeights, Model, Weights
 
 
-# TODO EDF don't hardcode
-LibPath = "/Users/eric/Development/eel/build/libeel.dylib"
+RootDir = Path(__file__).parent.parent
+
+if platform.system() == "Darwin":
+    LibPath = RootDir / "build" / "libeel.dylib"
+else:
+    LibPath = RootDir / "build" / "libeel.so"
 
 lib = ctypes.CDLL(LibPath)
 
