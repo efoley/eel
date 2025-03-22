@@ -61,10 +61,16 @@ void mva(const float *restrict A, const float *restrict x, const float *restrict
         {
             __m256 vA = _mm256_loadu_ps(&rowA[j]);
             __m256 vx = _mm256_loadu_ps(&x[j]);
-            // multiply A & x
+
+            // do the fma operation. there isn't any speed difference between
+            // using FMA vs plain AVX multiply and add. not surprising since we're
+            // surely just memory bound loading from A & x.
+            #if 1
+            sum = _mm256_fmadd_ps(vA, vx, sum); // sum += A[j] * x[j]
+            #else
             __m256 vAx = _mm256_mul_ps(vA, vx);
-            // add to sum
             sum = _mm256_add_ps(sum, vAx);
+            #endif
         }
 
         if (b) {
